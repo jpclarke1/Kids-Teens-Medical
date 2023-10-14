@@ -3,13 +3,13 @@
 
 # # KT Yelp Email Bot
 
-# In[1]:
+# In[ ]:
 
 
 # set to run every saturday at 9am PST
 
 
-# In[2]:
+# In[ ]:
 
 
 import requests
@@ -29,7 +29,7 @@ import random
 from mailjet_rest import Client
 
 
-# In[3]:
+# In[ ]:
 
 
 locations_df_temp = pd.read_excel("KT Locations Data.xlsx")
@@ -49,7 +49,7 @@ MAIL_API_KEY_S = pd.read_csv("MAIL_API_KEY.txt").iloc[0, 0]
 
 # ## Web Scraping
 
-# In[4]:
+# In[ ]:
 
 
 # given a 'list', list_search searches for the given string 'term' and will output whatever is in the position 
@@ -63,7 +63,7 @@ def list_search(list, term, num):
     return target_val
 
 
-# In[5]:
+# In[ ]:
 
 
 # pulls the 10 most recent reviews from yelp page given business_id and outputs them as a df
@@ -151,7 +151,7 @@ def yelp_review_scraper(business_id):
     return df           
 
 
-# In[6]:
+# In[ ]:
 
 
 max_attempts = 3  
@@ -171,7 +171,7 @@ for _ in range(max_attempts):
         print(f"An error occurred: {e}")
 
 
-# In[7]:
+# In[ ]:
 
 
 # Concatenate all the DataFrames in the list
@@ -197,7 +197,7 @@ yelp_reviews['review_text'] = yelp_reviews['review_text'].str.lower()
 
 # ## Generate Review Responses
 
-# In[9]:
+# In[ ]:
 
 
 #review prompt banks
@@ -227,7 +227,7 @@ Neg_Wait_Time = ["I apologize for any inconvenience you experienced due to wait 
                  "I'm deeply sorry for any inconvenience caused by wait times during your visit. We understand how valuable your time is, and we're actively working to reduce wait times. For immediate assistance and to provide us with more insights into your experience, please email us at drdesilva@ktdoctor.com. Your feedback is crucial in helping us enhance our service quality."]
 
 
-# In[10]:
+# In[ ]:
 
 
 def check_word(string, word):
@@ -237,7 +237,7 @@ def check_word(string, word):
         return False
 
 
-# In[11]:
+# In[ ]:
 
 
 responses = []
@@ -311,7 +311,7 @@ Reviews_Responded = pd.DataFrame(data)
 
 # ## Email Summary
 
-# In[13]:
+# In[ ]:
 
 
 grouped_reviews = {}
@@ -326,6 +326,7 @@ for index, row in Reviews_Responded.iterrows():
     rating = int(row['rating'])
     review_text = row['review_text']
     response = row['responses']
+    bus_id = row['bus_id']  # Assuming 'bus_id' is defined elsewhere
 
     # Check if the clinic is not already in grouped_reviews and initialize it if not
     if clinic not in grouped_reviews:
@@ -357,7 +358,7 @@ for clinic, reviews in grouped_reviews.items():
         email_text += (f"\nSuggested Response: {review['response']}\n\n")
 
 
-# In[15]:
+# In[ ]:
 
 
 mailjet = Client(auth=(MAIL_API_KEY, MAIL_API_KEY_S), version='v3.1')
@@ -385,7 +386,7 @@ data = {
 result = mailjet.send.create(data=data)
 
 
-# In[16]:
+# In[ ]:
 
 
 print (result.status_code)
